@@ -1,0 +1,53 @@
+---
+title: "Generalized Marginal Models and Generalized Mixed-effects Models"
+author: "Hana Akbarnejad"
+date: "5/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(gee)
+library(lme4)
+library(nlme)
+library(tidyverse)
+library(readxl)
+
+health_data = read_excel("HW8-HEALTH.xlsx") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    health = as.factor(health),
+    agegroup = as.factor(agegroup),
+    id = factor(id),
+    good_base = ifelse(health == "Good", 1, 0)
+  )
+```
+
+**response: participants' self-rated "health": Binary (Good/Poor)**
+
+(a) Evaluate the bivariate, cross-sectional relationship between random-ized group assignment and participants health self-rating at the time of ran-domization. Interpret and discuss these findings.
+
+```{r}
+
+data_baseline = health_data %>% 
+  filter(time == 1)
+
+base_glm = glm(health ~ txt, data = data_baseline, family = "binomial")
+summary(base_glm)
+```
+
+p-value = 0.49 > 0.05 we fail to reject null and conclude that there is no significant relationship between health status and the group they are assigned to (That is why is "randomized").
+
+(b) Perform a longitudinal data analysis across all study follow-up visits (but not at randomization) to describe the relationship of the participants self-ratings as a function of the effects of health self-rating at the baseline, treatment group, month post randomization, and age group as predictors. Fit a GEE with unstructured correlation structure. Interpret your results.
+
+```{r}
+
+data_gee = health_data %>% 
+  filter(
+    time >1
+  )
+#   
+# health_gee = gee(health ~ agegroup + good_base + txt + time, data = data_gee, family = "binomial", id=id, corstr = "unstructured", scale.fix= FALSE)
+```
+
